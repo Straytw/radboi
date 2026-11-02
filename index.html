@@ -3,40 +3,37 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Radboi Dosimeter Demo</title>
+    <title>Radboi — Dosimeter Demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <div class="brand" aria-label="Radboi dosimeter dashboard">
+    <div class="site-shell">
+      <header class="topbar panel">
+        <div class="brand">
           <span class="brand-mark">R</span>
-          <span>Radboi</span>
+          <span class="brand-name">Radboi</span>
         </div>
 
         <nav class="nav" aria-label="Main navigation">
-          <button class="nav-btn active" data-view="overview">Overview</button>
-          <button class="nav-btn" data-view="history">History</button>
-          <button class="nav-btn" data-view="alerts">Alerts</button>
-          <button class="nav-btn" data-view="settings">Settings</button>
+          <button class="nav-btn active">Overview</button>
+          <button class="nav-btn">History</button>
+          <button class="nav-btn">Alerts</button>
+          <button class="nav-btn">Settings</button>
         </nav>
       </header>
 
       <main class="dashboard">
-        <section class="panel hero">
+        <section class="hero panel">
           <div class="hero-copy">
             <p class="eyebrow">Radiation monitor</p>
             <h1>Dosimeter demo</h1>
             <p class="subtitle">
-              Live dose-rate tracking and environmental safety monitoring in a Google Material-inspired
-              dark interface.
+              Live dose-rate tracking and environmental safety monitoring in a Google Material-inspired dark interface.
             </p>
+
             <div class="cta-row">
               <button id="startDemo" class="primary-btn">Start demo</button>
               <button id="alarmTest" class="secondary-btn">Alarm check</button>
@@ -46,42 +43,44 @@
           <div class="gauge-wrap">
             <div class="meter-ring" id="meterRing">
               <div class="meter-core">
-                <span id="doseRateValue">0.42</span>
-                <small>µSv/h</small>
+                <div class="meter-value-row">
+                  <span id="doseRateValue">0.42</span>
+                </div>
+                <small>mSv/h</small>
               </div>
             </div>
           </div>
         </section>
 
         <section class="stats-grid">
-          <article class="stat-card">
+          <article class="stat-card panel">
             <span class="stat-label">Dose rate</span>
-            <strong id="statDose">0.42 µSv/h</strong>
+            <strong id="statDose">0.42 μSv/h</strong>
             <small>Live</small>
           </article>
 
-          <article class="stat-card">
+          <article class="stat-card panel">
             <span class="stat-label">Total dose</span>
-            <strong id="statTotal">1.34 mSv</strong>
+            <strong id="statTotal">0.00 mSv</strong>
             <small>Accumulated</small>
           </article>
 
-          <article class="stat-card">
+          <article class="stat-card panel">
             <span class="stat-label">Battery</span>
             <strong id="statBattery">92%</strong>
             <small>Stable</small>
           </article>
 
-          <article class="stat-card">
+          <article class="stat-card panel">
             <span class="stat-label">Status</span>
             <strong id="statStatus">Normal</strong>
             <small id="statusMeta">Background</small>
           </article>
         </section>
 
-        <section class="panel content-grid">
-          <div class="subpanel">
-            <div class="panel-head">
+        <section class="content-grid">
+          <article class="subpanel panel trend-panel">
+            <div class="panel-header">
               <div>
                 <p class="eyebrow">Trend</p>
                 <h2>24h history</h2>
@@ -89,28 +88,32 @@
               <span id="statusChip" class="status-chip normal">Normal</span>
             </div>
 
-            <svg id="trendChart" viewBox="0 0 520 220" aria-label="Dose history graph" role="img">
+            <svg id="trendChart" viewBox="0 0 620 230" aria-label="Dose history chart" role="img">
               <defs>
-                <linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stop-color="#8ab4f8" stop-opacity="0.6" />
-                  <stop offset="100%" stop-color="#8ab4f8" stop-opacity="0.02" />
+                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#8ab4f8" stop-opacity="0.58" />
+                  <stop offset="100%" stop-color="#8ab4f8" stop-opacity="0.04" />
                 </linearGradient>
               </defs>
-              <g class="grid-lines"></g>
+              <g class="chart-grid"></g>
               <path id="chartArea" class="chart-area" d=""></path>
               <path id="chartLine" class="chart-line" d=""></path>
             </svg>
-          </div>
+          </article>
 
-          <div class="subpanel details-panel">
-            <div class="panel-head">
+          <article class="subpanel panel state-panel">
+            <div class="panel-header">
               <div>
                 <p class="eyebrow">Realtime</p>
                 <h2>Device state</h2>
               </div>
             </div>
 
-            <ul class="metrics">
+            <div class="state-badge-wrap">
+              <span class="device-state normal">Normal</span>
+            </div>
+
+            <ul class="metrics-list">
               <li>
                 <span>Radiation</span>
                 <strong id="metricRadiation">Low</strong>
@@ -128,29 +131,46 @@
                 <strong id="metricLocation">Indoor / Lab A</strong>
               </li>
             </ul>
-
-            <div class="mini-meter-wrap">
-              <div class="mini-meter-labels">
-                <span>Safe</span>
-                <span>Alert</span>
-              </div>
-              <div class="mini-meter">
-                <div id="miniMeterFill" class="mini-meter-fill"></div>
-              </div>
-            </div>
-          </div>
+          </article>
         </section>
 
-        <section class="panel log-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Log</p>
-              <h2>Event stream</h2>
+        <section class="device-visual-wrap">
+          <div class="device-frame">
+            <div class="device-top">
+              <span class="device-brand">FNIRSI</span>
+              <span class="device-model">GC-01</span>
             </div>
-            <button id="resetData" class="ghost-btn">Reset data</button>
-          </div>
 
-          <ul id="eventLog" class="event-log" aria-live="polite"></ul>
+            <div class="device-screen">
+              <div class="screen-header">
+                <div class="screen-title">Instantaneous</div>
+                <div class="screen-icons">
+                  <span>⚡</span>
+                  <span>17:07</span>
+                </div>
+              </div>
+
+              <div class="screen-scale">
+                <span class="scale-bar"></span>
+              </div>
+
+              <div class="screen-readout">
+                <span>1 μ</span>
+                <span>1 m</span>
+                <span>Sv/h</span>
+              </div>
+            </div>
+
+            <div class="device-name">Rad Pro Simulator</div>
+
+            <div class="device-controls">
+              <button class="dial-btn up" aria-label="up"></button>
+              <button class="dial-btn left" aria-label="left"></button>
+              <button class="dial-btn ok">OK</button>
+              <button class="dial-btn right" aria-label="right"></button>
+              <button class="dial-btn down" aria-label="down"></button>
+            </div>
+          </div>
         </section>
       </main>
     </div>

@@ -1,10 +1,10 @@
 # Radboi Dosimeter Demo
 
-A dark Material-inspired dosimeter dashboard for radiation monitoring.
+A dark material-inspired monitoring dashboard for a dosimeter UI.
 
 ## Run locally
 
-Open `index.html` directly in the browser, or serve the folder:
+Open `index.html` directly in a browser, or serve the folder locally:
 
 ```bash
 python -m http.server 8000
@@ -13,14 +13,9 @@ python -m http.server 8000
 Then visit:
 
 ```text
-http://localhost:8000
+http://localhost:8000/
 ```
 
-## Included
+## Notes
 
-- live dose-rate meter
-- total dose summary
-- device status and battery info
-- trend chart
-- event log
-- start / pause / reset simulation controls
+This demo is built to match the provided reference: a dark dashboard with a dose gauge, summary cards, trend graph, and a hardware mockup panel.
