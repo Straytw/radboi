@@ -1,541 +1,179 @@
-const navButtons = document.querySelectorAll('.nav-btn, .primary-btn, .secondary-btn, .card-btn');
-const sections = document.querySelectorAll('.section-panel');
-
-const showSection = (targetId) => {
-  sections.forEach((section) => {
-    const active = section.id === targetId;
-    section.classList.toggle('active', active);
-  });
-
-  navButtons.forEach((button) => {
-    const target = button.dataset.section;
-    if (target === targetId) {
-      button.classList.add('active');
-    } else if (button.classList.contains('nav-btn')) {
-      button.classList.remove('active');
-    }
-  });
+const state = {
+  running: true,
+  doseRate: 0.42,
+  totalDose: 1.34,
+  battery: 92,
+  temperature: 22.3,
+  history: [0.34, 0.38, 0.44, 0.42, 0.48, 0.43, 0.51, 0.49, 0.46, 0.44, 0.52, 0.55, 0.5, 0.57, 0.49, 0.43, 0.4, 0.46, 0.51, 0.54, 0.58, 0.6, 0.48, 0.45, 0.42, 0.41, 0.35, 0.44, 0.46, 0.49, 0.53, 0.5, 0.58, 0.6, 0.54, 0.49],
+  log: []
 };
 
-navButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const sectionId = button.dataset.section;
-    if (sectionId) {
-      showSection(sectionId);
-    }
+const chartLine = document.getElementById('chartLine');
+const chartArea = document.getElementById('chartArea');
+const statusChip = document.getElementById('statusChip');
+const doseRateValue = document.getElementById('doseRateValue');
+const statDose = document.getElementById('statDose');
+const statTotal = document.getElementById('statTotal');
+const statBattery = document.getElementById('statBattery');
+const statStatus = document.getElementById('statStatus');
+const statusMeta = document.getElementById('statusMeta');
+const meterRing = document.getElementById('meterRing');
+const metricRadiation = document.getElementById('metricRadiation');
+const metricNeutron = document.getElementById('metricNeutron');
+const metricTemp = document.getElementById('metricTemp');
+const metricLocation = document.getElementById('metricLocation');
+const eventLog = document.getElementById('eventLog');
+const miniMeterFill = document.getElementById('miniMeterFill');
+const startDemo = document.getElementById('startDemo');
+const alarmTest = document.getElementById('alarmTest');
+const resetData = document.getElementById('resetData');
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function formatDose(value) {
+  return `${Number(value).toFixed(2)} µSv/h`;
+}
+
+function getStatus(dose) {
+  if (dose >= 1.5) return { label: 'Danger', cssClass: 'danger', meta: 'High radiation' };
+  if (dose >= 0.7) return { label: 'Warning', cssClass: 'warning', meta: 'Elevated' };
+  return { label: 'Normal', cssClass: 'normal', meta: 'Background' };
+}
+
+function addLog(message, level = 'info') {
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  state.log.unshift({ time, message, level });
+  state.log = state.log.slice(0, 6);
+
+  eventLog.innerHTML = state.log
+    .map(
+      (entry) => `
+        <li>
+          <span>${entry.message}</span>
+          <small>${entry.time}</small>
+        </li>
+      `
+    )
+    .join('');
+}
+
+function updateChart() {
+  const values = state.history;
+  const width = 520;
+  const height = 220;
+  const padding = 18;
+
+  const min = Math.min(...values) * 0.8;
+  const max = Math.max(...values) * 1.2;
+
+  const points = values.map((value, index) => {
+    const x = padding + (index / (values.length - 1)) * (width - padding * 2);
+    const y = height - padding - ((value - min) / Math.max(max - min, 0.0001)) * (height - padding * 2);
+    return [x, y];
   });
-});
 
-const boardEl = document.getElementById('chessBoard');
-const chessStatus = document.getElementById('chessStatus');
-const chessResetBtn = document.getElementById('chessReset');
+  const linePath = points
+    .map(([x, y], index) => `${index === 0 ? 'M' : 'L'} ${x} ${y}`)
+    .join(' ');
 
-const pieceGlyphs = {
-  wP: '♙',
-  wR: '♖',
-  wN: '♘',
-  wB: '♗',
-  wQ: '♕',
-  wK: '♔',
-  bP: '♟',
-  bR: '♜',
-  bN: '♞',
-  bB: '♝',
-  bQ: '♛',
-  bK: '♚'
-};
+  const areaPath = `${linePath} L ${points[points.length - 1][0]} ${height - padding} L ${points[0][0]} ${height - padding} Z`;
 
-const initialBoard = [
-  ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
-  ['bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP', 'bP'],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  [null, null, null, null, null, null, null, null],
-  ['wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP', 'wP'],
-  ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']
-];
+  chartLine.setAttribute('d', linePath);
+  chartArea.setAttribute('d', areaPath);
 
-let board = cloneBoard(initialBoard);
-let selected = null;
-let turn = 'white';
-
-function cloneBoard(source) {
-  return source.map((row) => [...row]);
+  const gridGroup = document.querySelector('.grid-lines');
+  const lines = Array.from({ length: 5 }, (_, i) => {
+    const y = padding + (i * (height - padding * 2)) / 4;
+    return `<line x1="${padding}" x2="${width - padding}" y1="${y}" y2="${y}" />`;
+  }).join('');
+  gridGroup.innerHTML = lines;
 }
 
-function isWhite(piece) {
-  return !!piece && piece[0] === 'w';
-}
+function renderStatus() {
+  const status = getStatus(state.doseRate);
+  const gaugePercent = clamp((state.doseRate / 3) * 100, 0, 100);
 
-function isBlack(piece) {
-  return !!piece && piece[0] === 'b';
-}
-
-function getPieceColor(piece) {
-  if (!piece) return null;
-  return piece[0] === 'w' ? 'white' : 'black';
-}
-
-function getPieceType(piece) {
-  if (!piece) return null;
-  return piece[1];
-}
-
-function inBounds(row, col) {
-  return row >= 0 && row < 8 && col >= 0 && col < 8;
-}
-
-function moveIsWithinBoard(row, col) {
-  return row >= 0 && row < 8 && col >= 0 && col < 8;
-}
-
-function getValidMoves(row, col) {
-  const piece = board[row][col];
-  if (!piece) return [];
-
-  const color = getPieceColor(piece);
-  const type = getPieceType(piece);
-  const moves = [];
-
-  const addDirectional = (dr, dc) => {
-    let r = row + dr;
-    let c = col + dc;
-    while (moveIsWithinBoard(r, c)) {
-      const target = board[r][c];
-      if (!target) {
-        moves.push([r, c]);
-      } else if (getPieceColor(target) !== color) {
-        moves.push([r, c]);
-        break;
-      } else {
-        break;
-      }
-      r += dr;
-      c += dc;
-    }
-  };
-
-  if (type === 'P') {
-    const direction = color === 'white' ? -1 : 1;
-    const startRow = color === 'white' ? 6 : 1;
-    const front = row + direction;
-
-    if (inBounds(front, col) && !board[front][col]) {
-      moves.push([front, col]);
-      if (row === startRow) {
-        const twoSteps = row + direction * 2;
-        if (inBounds(twoSteps, col) && !board[twoSteps][col]) {
-          moves.push([twoSteps, col]);
-        }
-      }
-    }
-
-    [-1, 1].forEach((dir) => {
-      const targetRow = row + direction;
-      const targetCol = col + dir;
-      if (inBounds(targetRow, targetCol)) {
-        const target = board[targetRow][targetCol];
-        if (target && getPieceColor(target) !== color) {
-          moves.push([targetRow, targetCol]);
-        }
-      }
-    });
-  }
-
-  if (type === 'N') {
-    const offsets = [
-      [-2, -1], [-2, 1], [-1, -2], [-1, 2],
-      [1, -2], [1, 2], [2, -1], [2, 1]
-    ];
-
-    offsets.forEach(([dr, dc]) => {
-      const r = row + dr;
-      const c = col + dc;
-      if (inBounds(r, c)) {
-        const target = board[r][c];
-        if (!target || getPieceColor(target) !== color) {
-          moves.push([r, c]);
-        }
-      }
-    });
-  }
-
-  if (type === 'B' || type === 'R' || type === 'Q') {
-    if (type === 'B' || type === 'Q') {
-      addDirectional(1, 1);
-      addDirectional(1, -1);
-      addDirectional(-1, 1);
-      addDirectional(-1, -1);
-    }
-    if (type === 'R' || type === 'Q') {
-      addDirectional(1, 0);
-      addDirectional(-1, 0);
-      addDirectional(0, 1);
-      addDirectional(0, -1);
-    }
-  }
-
-  if (type === 'K') {
-    [-1, 0, 1].forEach((dr) => {
-      [-1, 0, 1].forEach((dc) => {
-        if (dr === 0 && dc === 0) return;
-        const r = row + dr;
-        const c = col + dc;
-        if (inBounds(r, c)) {
-          const target = board[r][c];
-          if (!target || getPieceColor(target) !== color) {
-            moves.push([r, c]);
-          }
-        }
-      });
-    });
-  }
-
-  return moves;
-}
-
-function renderBoard() {
-  boardEl.innerHTML = '';
-  const validMoves = selected ? new Set(getValidMoves(selected.row, selected.col).map(([r, c]) => `${r}-${c}`)) : new Set();
-
-  for (let row = 0; row < 8; row += 1) {
-    for (let col = 0; col < 8; col += 1) {
-      const square = document.createElement('button');
-      square.className = `square ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
-      square.type = 'button';
-      square.dataset.row = String(row);
-      square.dataset.col = String(col);
-
-      if (selected && selected.row === row && selected.col === col) {
-        square.classList.add('selected');
-      }
-
-      const moveKey = `${row}-${col}`;
-      if (validMoves.has(moveKey)) {
-        square.classList.add('valid-move');
-      }
-
-      const piece = board[row][col];
-      if (piece) {
-        square.textContent = pieceGlyphs[piece];
-      }
-
-      square.addEventListener('click', () => handleSquareClick(row, col));
-      boardEl.appendChild(square);
-    }
-  }
-}
-
-function resetBoard() {
-  board = cloneBoard(initialBoard);
-  selected = null;
-  turn = 'white';
-  chessStatus.textContent = 'White to move';
-  renderBoard();
-}
-
-function handleSquareClick(row, col) {
-  const piece = board[row][col];
-
-  if (selected) {
-    const { row: selectedRow, col: selectedCol } = selected;
-    const validMoves = getValidMoves(selectedRow, selectedCol);
-    const isValidMove = validMoves.some(([r, c]) => r === row && c === col);
-
-    if (isValidMove) {
-      const movingPiece = board[selectedRow][selectedCol];
-      board[row][col] = movingPiece;
-      board[selectedRow][selectedCol] = null;
-      turn = turn === 'white' ? 'black' : 'white';
-      chessStatus.textContent = `${turn === 'white' ? 'White' : 'Black'} to move`;
-      selected = null;
-      renderBoard();
-      return;
-    }
-  }
-
-  if (piece && getPieceColor(piece) === turn) {
-    selected = { row, col };
-    renderBoard();
-    return;
-  }
-
-  selected = null;
-  renderBoard();
-}
-
-chessResetBtn.addEventListener('click', resetBoard);
-renderBoard();
-
-const tetrisCanvas = document.getElementById('tetrisCanvas');
-const ctx = tetrisCanvas.getContext('2d');
-const scoreEl = document.getElementById('score');
-const linesEl = document.getElementById('lines');
-const levelEl = document.getElementById('level');
-const startBtn = document.getElementById('tetrisStart');
-const pauseBtn = document.getElementById('tetrisPause');
-const restartBtn = document.getElementById('tetrisRestart');
-
-const COLS = 10;
-const ROWS = 20;
-const BLOCK = 30;
-const EMPTY = 0;
-
-const SHAPES = {
-  I: [[1, 1, 1, 1]],
-  J: [[1, 0, 0], [1, 1, 1]],
-  L: [[0, 0, 1], [1, 1, 1]],
-  O: [[1, 1], [1, 1]],
-  S: [[0, 1, 1], [1, 1, 0]],
-  T: [[0, 1, 0], [1, 1, 1]],
-  Z: [[1, 1, 0], [0, 1, 1]]
-};
-
-const COLORS = {
-  I: '#2fc3f2',
-  J: '#4d7ef7',
-  L: '#f7ad45',
-  O: '#f3db4c',
-  S: '#48d584',
-  T: '#ae7df4',
-  Z: '#ff5d73'
-};
-
-let board = createMatrix(COLS, ROWS);
-let score = 0;
-let lines = 0;
-let level = 1;
-let gameOver = false;
-let paused = false;
-let dropInterval = 700;
-let dropTimer = null;
-let activePiece = null;
-
-function createMatrix(width, height) {
-  return Array.from({ length: height }, () => Array(width).fill(EMPTY));
-}
-
-function randomPiece() {
-  const keys = Object.keys(SHAPES);
-  const type = keys[Math.floor(Math.random() * keys.length)];
-  const matrix = SHAPES[type].map((row) => [...row]);
-  return {
-    type,
-    matrix,
-    x: Math.floor((COLS - matrix[0].length) / 2),
-    y: 0
-  };
-}
-
-function collide(boardState, piece) {
-  for (let y = 0; y < piece.matrix.length; y += 1) {
-    for (let x = 0; x < piece.matrix[y].length; x += 1) {
-      if (piece.matrix[y][x] === 0) continue;
-      const boardX = piece.x + x;
-      const boardY = piece.y + y;
-
-      if (boardX < 0 || boardX >= COLS || boardY >= ROWS) {
-        return true;
-      }
-
-      if (boardY >= 0 && boardState[boardY][boardX]) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-
-function merge(boardState, piece) {
-  piece.matrix.forEach((row, y) => {
-    row.forEach((value, x) => {
-      if (value) {
-        const targetY = piece.y + y;
-        const targetX = piece.x + x;
-        if (targetY >= 0) {
-          boardState[targetY][targetX] = piece.type;
-        }
-      }
-    });
-  });
-}
-
-function clearLines() {
-  let cleared = 0;
-
-  for (let y = ROWS - 1; y >= 0; y -= 1) {
-    if (board[y].every((cell) => cell !== EMPTY)) {
-      board.splice(y, 1);
-      board.unshift(Array(COLS).fill(EMPTY));
-      cleared += 1;
-      y += 1;
-    }
-  }
-
-  if (cleared > 0) {
-    lines += cleared;
-    score += [0, 100, 300, 500, 800][cleared] * level;
-    level = Math.floor(lines / 10) + 1;
-    dropInterval = Math.max(120, 700 - (level - 1) * 60);
-    updateHud();
-  }
-}
-
-function rotateMatrix(matrix) {
-  return matrix[0].map((_, index) => matrix.map((row) => row[index]).reverse());
-}
-
-function rotatePiece() {
-  if (!activePiece || paused || gameOver) return;
-  const rotated = rotateMatrix(activePiece.matrix);
-  const oldMatrix = activePiece.matrix;
-  activePiece.matrix = rotated;
-
-  if (collide(board, activePiece)) {
-    activePiece.matrix = oldMatrix;
-  }
-}
-
-function movePiece(offsetX, offsetY) {
-  if (!activePiece || paused || gameOver) return;
-  activePiece.x += offsetX;
-  activePiece.y += offsetY;
-
-  if (collide(board, activePiece)) {
-    activePiece.x -= offsetX;
-    activePiece.y -= offsetY;
-
-    if (offsetY > 0) {
-      merge(board, activePiece);
-      clearLines();
-      spawnPiece();
-    }
-  }
-}
-
-function spawnPiece() {
-  activePiece = randomPiece();
-  if (collide(board, activePiece)) {
-    gameOver = true;
-    paused = true;
-    chessStatus.textContent = 'Game over';
-  }
-}
-
-function updateHud() {
-  scoreEl.textContent = String(score);
-  linesEl.textContent = String(lines);
-  levelEl.textContent = String(level);
-}
-
-function drawCell(x, y, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
-  ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-  ctx.strokeRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
-}
-
-function drawBoard() {
-  ctx.clearRect(0, 0, tetrisCanvas.width, tetrisCanvas.height);
-
-  for (let y = 0; y < ROWS; y += 1) {
-    for (let x = 0; x < COLS; x += 1) {
-      const cell = board[y][x];
-      if (cell) {
-        drawCell(x, y, COLORS[cell]);
-      } else {
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)';
-        ctx.strokeRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
-      }
-    }
-  }
-
-  if (activePiece) {
-    activePiece.matrix.forEach((row, y) => {
-      row.forEach((value, x) => {
-        if (value) {
-          const drawX = activePiece.x + x;
-          const drawY = activePiece.y + y;
-          if (drawY >= 0) {
-            drawCell(drawX, drawY, COLORS[activePiece.type]);
-          }
-        }
-      });
-    });
-  }
-}
-
-function tick() {
-  if (!paused && !gameOver) {
-    movePiece(0, 1);
-    drawBoard();
-  }
-}
-
-function startGame() {
-  if (!activePiece) {
-    spawnPiece();
-  }
-  paused = false;
-  gameOver = false;
-  drawBoard();
-  clearInterval(dropTimer);
-  dropTimer = setInterval(tick, dropInterval);
-}
-
-function pauseGame() {
-  paused = !paused;
-  if (!paused) {
-    clearInterval(dropTimer);
-    dropTimer = setInterval(tick, dropInterval);
+  meterRing.style.setProperty('--gauge', `${gaugePercent}%`);
+  if (gaugePercent > 70) {
+    meterRing.style.boxShadow = '0 0 28px rgba(255, 122, 122, 0.2)';
   } else {
-    clearInterval(dropTimer);
-  }
-}
-
-function resetTetris() {
-  board = createMatrix(COLS, ROWS);
-  score = 0;
-  lines = 0;
-  level = 1;
-  dropInterval = 700;
-  gameOver = false;
-  paused = false;
-  activePiece = null;
-  updateHud();
-  clearInterval(dropTimer);
-  spawnPiece();
-  drawBoard();
-}
-
-startBtn.addEventListener('click', startGame);
-pauseBtn.addEventListener('click', pauseGame);
-restartBtn.addEventListener('click', resetTetris);
-
-document.addEventListener('keydown', (event) => {
-  if (!activePiece || gameOver) return;
-
-  const key = event.key.toLowerCase();
-
-  if (key === 'arrowleft' || key === 'a') movePiece(-1, 0);
-  if (key === 'arrowright' || key === 'd') movePiece(1, 0);
-  if (key === 'arrowdown' || key === 's') movePiece(0, 1);
-  if (key === 'arrowup' || key === 'w') rotatePiece();
-  if (event.code === 'Space') {
-    event.preventDefault();
-    while (!collide(board, activePiece)) {
-      activePiece.y += 1;
-    }
-    activePiece.y -= 1;
-    merge(board, activePiece);
-    clearLines();
-    spawnPiece();
-    drawBoard();
+    meterRing.style.boxShadow = '0 18px 34px rgba(8, 18, 29, 0.4)';
   }
 
-  drawBoard();
+  doseRateValue.textContent = Number(state.doseRate).toFixed(2);
+  statDose.textContent = formatDose(state.doseRate);
+  statTotal.textContent = `${(state.totalDose / 1000).toFixed(2)} mSv`;
+  statBattery.textContent = `${Math.round(state.battery)}%`;
+  statStatus.textContent = status.label;
+  statusMeta.textContent = status.meta;
+  statusChip.textContent = status.label;
+  statusChip.className = `status-chip ${status.cssClass}`;
+
+  metricRadiation.textContent = state.doseRate >= 1.5 ? 'High' : state.doseRate >= 0.7 ? 'Elevated' : 'Low';
+  metricNeutron.textContent = state.doseRate >= 1.2 ? 'Detected' : 'No signal';
+  metricTemp.textContent = `${state.temperature.toFixed(1)}°C`;
+  metricLocation.textContent = 'Indoor / Lab A';
+
+  miniMeterFill.style.width = `${gaugePercent}%`;
+}
+
+function simulateReading() {
+  if (!state.running) return;
+
+  const drift = (Math.random() - 0.5) * 1.2;
+  const base = 0.42 + drift;
+  state.doseRate = clamp(base, 0.08, 2.8);
+  state.temperature = clamp(22.3 + (Math.random() - 0.4) * 4, 18, 29);
+  state.battery = clamp(state.battery - Math.random() * 0.17, 24, 100);
+  state.totalDose += state.doseRate * 0.12;
+  state.history.push(state.doseRate);
+  if (state.history.length > 36) state.history.shift();
+
+  const status = getStatus(state.doseRate);
+  if (status.label !== 'Normal' && Math.random() > 0.55) {
+    addLog(`Alert: ${status.label.toLowerCase()} dose detected`, 'alert');
+  } else {
+    addLog(`Ambient check stable at ${state.doseRate.toFixed(2)} µSv/h`, 'info');
+  }
+
+  renderStatus();
+  updateChart();
+}
+
+function resetDemoState() {
+  state.running = true;
+  state.doseRate = 0.42;
+  state.totalDose = 1.34;
+  state.battery = 92;
+  state.temperature = 22.3;
+  state.history = Array.from({ length: 36 }, (_, index) => 0.34 + Math.sin(index / 4) * 0.12 + (index % 5) * 0.02);
+  state.log = [];
+  addLog('System reset complete', 'info');
+  addLog('Demo mode ready', 'info');
+  renderStatus();
+  updateChart();
+}
+
+startDemo.addEventListener('click', () => {
+  state.running = !state.running;
+  startDemo.textContent = state.running ? 'Pause demo' : 'Resume demo';
+  addLog(state.running ? 'Demo resumed' : 'Demo paused', 'info');
 });
 
-updateHud();
-resetTetris();
+alarmTest.addEventListener('click', () => {
+  state.doseRate = 1.8;
+  state.totalDose += 0.4;
+  renderStatus();
+  updateChart();
+  addLog('Manual alarm test triggered', 'alert');
+});
+
+resetData.addEventListener('click', () => {
+  resetDemoState();
+});
+
+resetDemoState();
+setInterval(simulateReading, 1800);

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Radboi Game Lab</title>
+    <title>Radboi Dosimeter Demo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -15,151 +15,142 @@
   <body>
     <div class="app-shell">
       <header class="topbar">
-        <div class="brand" aria-label="Radboi Game Lab">
+        <div class="brand" aria-label="Radboi dosimeter dashboard">
           <span class="brand-mark">R</span>
           <span>Radboi</span>
         </div>
 
         <nav class="nav" aria-label="Main navigation">
-          <button class="nav-btn active" data-section="hub">Game</button>
-          <button class="nav-btn" data-section="chess">Chess</button>
-          <button class="nav-btn" data-section="tetris">Tetris</button>
+          <button class="nav-btn active" data-view="overview">Overview</button>
+          <button class="nav-btn" data-view="history">History</button>
+          <button class="nav-btn" data-view="alerts">Alerts</button>
+          <button class="nav-btn" data-view="settings">Settings</button>
         </nav>
       </header>
 
-      <main class="content">
-        <section class="hero panel">
+      <main class="dashboard">
+        <section class="panel hero">
           <div class="hero-copy">
-            <p class="eyebrow">Google Material dark</p>
-            <h1>Game collection</h1>
+            <p class="eyebrow">Radiation monitor</p>
+            <h1>Dosimeter demo</h1>
             <p class="subtitle">
-              Classic strategy and arcade gameplay in a clean, modern interface inspired by Google
-              Workspace materials.
+              Live dose-rate tracking and environmental safety monitoring in a Google Material-inspired
+              dark interface.
             </p>
             <div class="cta-row">
-              <button class="primary-btn" data-section="chess">Play Chess</button>
-              <button class="secondary-btn" data-section="tetris">Play Tetris</button>
+              <button id="startDemo" class="primary-btn">Start demo</button>
+              <button id="alarmTest" class="secondary-btn">Alarm check</button>
             </div>
           </div>
 
-          <div class="hero-stats" aria-label="Game stats">
-            <div class="stat-card">
-              <span class="stat-label">Mode</span>
-              <strong>Dual</strong>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Theme</span>
-              <strong>Dark</strong>
-            </div>
-            <div class="stat-card">
-              <span class="stat-label">Games</span>
-              <strong>2</strong>
+          <div class="gauge-wrap">
+            <div class="meter-ring" id="meterRing">
+              <div class="meter-core">
+                <span id="doseRateValue">0.42</span>
+                <small>µSv/h</small>
+              </div>
             </div>
           </div>
         </section>
 
-        <section id="hub" class="panel section-panel active">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">Selection</p>
-              <h2>Choose a game</h2>
+        <section class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">Dose rate</span>
+            <strong id="statDose">0.42 µSv/h</strong>
+            <small>Live</small>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-label">Total dose</span>
+            <strong id="statTotal">1.34 mSv</strong>
+            <small>Accumulated</small>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-label">Battery</span>
+            <strong id="statBattery">92%</strong>
+            <small>Stable</small>
+          </article>
+
+          <article class="stat-card">
+            <span class="stat-label">Status</span>
+            <strong id="statStatus">Normal</strong>
+            <small id="statusMeta">Background</small>
+          </article>
+        </section>
+
+        <section class="panel content-grid">
+          <div class="subpanel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Trend</p>
+                <h2>24h history</h2>
+              </div>
+              <span id="statusChip" class="status-chip normal">Normal</span>
             </div>
+
+            <svg id="trendChart" viewBox="0 0 520 220" aria-label="Dose history graph" role="img">
+              <defs>
+                <linearGradient id="chartFill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stop-color="#8ab4f8" stop-opacity="0.6" />
+                  <stop offset="100%" stop-color="#8ab4f8" stop-opacity="0.02" />
+                </linearGradient>
+              </defs>
+              <g class="grid-lines"></g>
+              <path id="chartArea" class="chart-area" d=""></path>
+              <path id="chartLine" class="chart-line" d=""></path>
+            </svg>
           </div>
 
-          <div class="game-grid">
-            <article class="game-card chess-card" data-section="chess">
-              <div class="card-icon">♟</div>
-              <h3>Chess</h3>
-              <p>Classic board strategy with a clean, minimal interface.</p>
-              <button class="card-btn" data-section="chess">Open board</button>
-            </article>
+          <div class="subpanel details-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Realtime</p>
+                <h2>Device state</h2>
+              </div>
+            </div>
 
-            <article class="game-card tetris-card" data-section="tetris">
-              <div class="card-icon">▣</div>
-              <h3>Tetris</h3>
-              <p>Arcade stacking challenge with keyboard controls and score tracking.</p>
-              <button class="card-btn" data-section="tetris">Start game</button>
-            </article>
+            <ul class="metrics">
+              <li>
+                <span>Radiation</span>
+                <strong id="metricRadiation">Low</strong>
+              </li>
+              <li>
+                <span>Neutron</span>
+                <strong id="metricNeutron">No signal</strong>
+              </li>
+              <li>
+                <span>Temperature</span>
+                <strong id="metricTemp">22.3°C</strong>
+              </li>
+              <li>
+                <span>Location</span>
+                <strong id="metricLocation">Indoor / Lab A</strong>
+              </li>
+            </ul>
+
+            <div class="mini-meter-wrap">
+              <div class="mini-meter-labels">
+                <span>Safe</span>
+                <span>Alert</span>
+              </div>
+              <div class="mini-meter">
+                <div id="miniMeterFill" class="mini-meter-fill"></div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="chess" class="panel section-panel">
-          <div class="section-header">
+        <section class="panel log-panel">
+          <div class="panel-head">
             <div>
-              <p class="eyebrow">Board game</p>
-              <h2>Chess</h2>
+              <p class="eyebrow">Log</p>
+              <h2>Event stream</h2>
             </div>
-            <button id="chessReset" class="ghost-btn">Reset</button>
+            <button id="resetData" class="ghost-btn">Reset data</button>
           </div>
 
-          <div class="game-layout">
-            <div class="board-wrapper">
-              <div id="chessBoard" class="chess-board" aria-label="Chess board"></div>
-            </div>
-
-            <aside class="info-panel">
-              <div class="status-box">
-                <span class="panel-label">Status</span>
-                <strong id="chessStatus">White to move</strong>
-              </div>
-
-              <div class="tips-box">
-                <span class="panel-label">How to play</span>
-                <ul>
-                  <li>Select a piece on your side.</li>
-                  <li>Click the target square to move.</li>
-                  <li>Classic chess pieces are included.</li>
-                </ul>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section id="tetris" class="panel section-panel">
-          <div class="section-header">
-            <div>
-              <p class="eyebrow">Arcade</p>
-              <h2>Tetris</h2>
-            </div>
-            <div class="tetris-actions">
-              <button id="tetrisStart" class="ghost-btn">Start</button>
-              <button id="tetrisPause" class="ghost-btn">Pause</button>
-              <button id="tetrisRestart" class="ghost-btn">Restart</button>
-            </div>
-          </div>
-
-          <div class="game-layout">
-            <div class="tetris-wrapper">
-              <canvas id="tetrisCanvas" width="300" height="600" aria-label="Tetris board"></canvas>
-            </div>
-
-            <aside class="info-panel">
-              <div class="score-box">
-                <div>
-                  <span class="panel-label">Score</span>
-                  <strong id="score">0</strong>
-                </div>
-                <div>
-                  <span class="panel-label">Lines</span>
-                  <strong id="lines">0</strong>
-                </div>
-                <div>
-                  <span class="panel-label">Level</span>
-                  <strong id="level">1</strong>
-                </div>
-              </div>
-
-              <div class="tips-box">
-                <span class="panel-label">Controls</span>
-                <ul>
-                  <li>← → move</li>
-                  <li>↓ soft drop</li>
-                  <li>↑ rotate</li>
-                  <li>Space for hard drop</li>
-                </ul>
-              </div>
-            </aside>
-          </div>
+          <ul id="eventLog" class="event-log" aria-live="polite"></ul>
         </section>
       </main>
     </div>

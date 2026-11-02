@@ -1,12 +1,10 @@
-# Radboi Game Demo
+# Radboi Dosimeter Demo
 
-A small dark-themed web demo with two classic games:
-- Chess
-- Tetris
+A dark Material-inspired dosimeter dashboard for radiation monitoring.
 
 ## Run locally
 
-Open `index.html` directly in the browser, or serve the folder with:
+Open `index.html` directly in the browser, or serve the folder:
 
 ```bash
 python -m http.server 8000
@@ -18,10 +16,11 @@ Then visit:
 http://localhost:8000
 ```
 
-## Features
+## Included
 
-- Google Material-inspired dark theme
-- Split game section with Chess and Tetris
-- Mobile-friendly layout
-- Keyboard controls for Tetris
-- Reset / start / pause helpers for the demo
+- live dose-rate meter
+- total dose summary
+- device status and battery info
+- trend chart
+- event log
+- start / pause / reset simulation controls
