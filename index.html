@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Radboi Game Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand" aria-label="Radboi Game Lab">
+          <span class="brand-mark">R</span>
+          <span>Radboi</span>
+        </div>
+
+        <nav class="nav" aria-label="Main navigation">
+          <button class="nav-btn active" data-section="hub">Game</button>
+          <button class="nav-btn" data-section="chess">Chess</button>
+          <button class="nav-btn" data-section="tetris">Tetris</button>
+        </nav>
+      </header>
+
+      <main class="content">
+        <section class="hero panel">
+          <div class="hero-copy">
+            <p class="eyebrow">Google Material dark</p>
+            <h1>Game collection</h1>
+            <p class="subtitle">
+              Classic strategy and arcade gameplay in a clean, modern interface inspired by Google
+              Workspace materials.
+            </p>
+            <div class="cta-row">
+              <button class="primary-btn" data-section="chess">Play Chess</button>
+              <button class="secondary-btn" data-section="tetris">Play Tetris</button>
+            </div>
+          </div>
+
+          <div class="hero-stats" aria-label="Game stats">
+            <div class="stat-card">
+              <span class="stat-label">Mode</span>
+              <strong>Dual</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Theme</span>
+              <strong>Dark</strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Games</span>
+              <strong>2</strong>
+            </div>
+          </div>
+        </section>
+
+        <section id="hub" class="panel section-panel active">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Selection</p>
+              <h2>Choose a game</h2>
+            </div>
+          </div>
+
+          <div class="game-grid">
+            <article class="game-card chess-card" data-section="chess">
+              <div class="card-icon">♟</div>
+              <h3>Chess</h3>
+              <p>Classic board strategy with a clean, minimal interface.</p>
+              <button class="card-btn" data-section="chess">Open board</button>
+            </article>
+
+            <article class="game-card tetris-card" data-section="tetris">
+              <div class="card-icon">▣</div>
+              <h3>Tetris</h3>
+              <p>Arcade stacking challenge with keyboard controls and score tracking.</p>
+              <button class="card-btn" data-section="tetris">Start game</button>
+            </article>
+          </div>
+        </section>
+
+        <section id="chess" class="panel section-panel">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Board game</p>
+              <h2>Chess</h2>
+            </div>
+            <button id="chessReset" class="ghost-btn">Reset</button>
+          </div>
+
+          <div class="game-layout">
+            <div class="board-wrapper">
+              <div id="chessBoard" class="chess-board" aria-label="Chess board"></div>
+            </div>
+
+            <aside class="info-panel">
+              <div class="status-box">
+                <span class="panel-label">Status</span>
+                <strong id="chessStatus">White to move</strong>
+              </div>
+
+              <div class="tips-box">
+                <span class="panel-label">How to play</span>
+                <ul>
+                  <li>Select a piece on your side.</li>
+                  <li>Click the target square to move.</li>
+                  <li>Classic chess pieces are included.</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="tetris" class="panel section-panel">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Arcade</p>
+              <h2>Tetris</h2>
+            </div>
+            <div class="tetris-actions">
+              <button id="tetrisStart" class="ghost-btn">Start</button>
+              <button id="tetrisPause" class="ghost-btn">Pause</button>
+              <button id="tetrisRestart" class="ghost-btn">Restart</button>
+            </div>
+          </div>
+
+          <div class="game-layout">
+            <div class="tetris-wrapper">
+              <canvas id="tetrisCanvas" width="300" height="600" aria-label="Tetris board"></canvas>
+            </div>
+
+            <aside class="info-panel">
+              <div class="score-box">
+                <div>
+                  <span class="panel-label">Score</span>
+                  <strong id="score">0</strong>
+                </div>
+                <div>
+                  <span class="panel-label">Lines</span>
+                  <strong id="lines">0</strong>
+                </div>
+                <div>
+                  <span class="panel-label">Level</span>
+                  <strong id="level">1</strong>
+                </div>
+              </div>
+
+              <div class="tips-box">
+                <span class="panel-label">Controls</span>
+                <ul>
+                  <li>← → move</li>
+                  <li>↓ soft drop</li>
+                  <li>↑ rotate</li>
+                  <li>Space for hard drop</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
