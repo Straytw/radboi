@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Radboi — Dosimeter Demo</title>
+    <title>Radboi Dosimeter</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,10 +18,10 @@
         </div>
 
         <nav class="nav" aria-label="Main navigation">
-          <button class="nav-btn active">Overview</button>
-          <button class="nav-btn">History</button>
-          <button class="nav-btn">Alerts</button>
-          <button class="nav-btn">Settings</button>
+          <button class="nav-btn active" type="button">Overview</button>
+          <button class="nav-btn" type="button">History</button>
+          <button class="nav-btn" type="button">Alerts</button>
+          <button class="nav-btn" type="button">Settings</button>
         </nav>
       </header>
 
@@ -35,8 +35,8 @@
             </p>
 
             <div class="cta-row">
-              <button id="startDemo" class="primary-btn">Start demo</button>
-              <button id="alarmTest" class="secondary-btn">Alarm check</button>
+              <button id="startDemo" class="primary-btn" type="button">Start demo</button>
+              <button id="alarmTest" class="secondary-btn" type="button">Alarm check</button>
             </div>
           </div>
 
@@ -88,10 +88,10 @@
               <span id="statusChip" class="status-chip normal">Normal</span>
             </div>
 
-            <svg id="trendChart" viewBox="0 0 620 230" aria-label="Dose history chart" role="img">
+            <svg id="trendChart" viewBox="0 0 620 220" aria-label="Dose history chart" role="img">
               <defs>
                 <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#8ab4f8" stop-opacity="0.58" />
+                  <stop offset="0%" stop-color="#8ab4f8" stop-opacity="0.55" />
                   <stop offset="100%" stop-color="#8ab4f8" stop-opacity="0.04" />
                 </linearGradient>
               </defs>
@@ -164,11 +164,11 @@
             <div class="device-name">Rad Pro Simulator</div>
 
             <div class="device-controls">
-              <button class="dial-btn up" aria-label="up"></button>
-              <button class="dial-btn left" aria-label="left"></button>
-              <button class="dial-btn ok">OK</button>
-              <button class="dial-btn right" aria-label="right"></button>
-              <button class="dial-btn down" aria-label="down"></button>
+              <button class="dial-btn up" aria-label="up" type="button"></button>
+              <button class="dial-btn left" aria-label="left" type="button"></button>
+              <button class="dial-btn ok" type="button">OK</button>
+              <button class="dial-btn right" aria-label="right" type="button"></button>
+              <button class="dial-btn down" aria-label="down" type="button"></button>
             </div>
           </div>
         </section>

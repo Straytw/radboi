@@ -4,7 +4,7 @@ const state = {
   totalDose: 0.0,
   battery: 92,
   temperature: 22.3,
-  history: [0.18, 0.32, 0.44, 0.24, 0.48, 0.54, 0.42, 0.39, 0.5, 0.46, 0.53, 0.41, 0.33, 0.27, 0.3, 0.36, 0.44, 0.58, 0.52, 0.47, 0.4, 0.43, 0.49, 0.62, 0.52, 0.46, 0.42, 0.33, 0.39, 0.46, 0.42, 0.54, 0.58, 0.49, 0.44, 0.41],
+  history: [0.18, 0.31, 0.44, 0.28, 0.5, 0.54, 0.43, 0.39, 0.49, 0.46, 0.52, 0.41, 0.33, 0.28, 0.3, 0.35, 0.43, 0.58, 0.51, 0.46, 0.4, 0.42, 0.48, 0.63, 0.52, 0.45, 0.41, 0.34, 0.39, 0.46, 0.42, 0.55, 0.58, 0.5, 0.45, 0.41],
 };
 
 const chartArea = document.getElementById('chartArea');
@@ -42,7 +42,7 @@ function getStatus(dose) {
 function renderChart() {
   const values = state.history;
   const width = 620;
-  const height = 230;
+  const height = 220;
   const padding = 18;
 
   const min = Math.min(...values) * 0.8;
@@ -98,10 +98,10 @@ function updateDashboard() {
 function tick() {
   if (!state.running) return;
 
-  const drift = (Math.random() - 0.5) * 0.9;
-  state.doseRate = clamp(0.42 + drift, 0.05, 2.5);
+  const drift = (Math.random() - 0.5) * 0.8;
+  state.doseRate = clamp(0.42 + drift, 0.05, 2.6);
   state.temperature = clamp(22.3 + (Math.random() - 0.5) * 2.8, 18, 29);
-  state.battery = clamp(state.battery - Math.random() * 0.3, 18, 100);
+  state.battery = clamp(state.battery - Math.random() * 0.22, 18, 100);
   state.totalDose += state.doseRate * 0.04;
   state.history.push(state.doseRate);
 
@@ -121,9 +121,11 @@ startDemoButton.addEventListener('click', () => {
 alarmTestButton.addEventListener('click', () => {
   state.doseRate = 1.8;
   state.temperature = 25.5;
-  state.totalDose += 0.25;
+  state.totalDose += 0.28;
   state.history.push(state.doseRate);
-  if (state.history.length > 36) state.history.shift();
+  if (state.history.length > 36) {
+    state.history.shift();
+  }
   updateDashboard();
   renderChart();
 });
